@@ -6,13 +6,15 @@ const router:Router=express.Router()
 
 const authenticator=new Authenticator();
 
-router.route('/profile')
-.get(authenticator.authenticate,ProfileController.getAllProfiles)
-.post(authenticator.authenticate,ProfileController.createProfile)
-.patch(authenticator.authenticate,ProfileController.updateProfile)
+router.route('/')
+.get(authenticator.authenticate,authenticator.userAuthenticate,authenticator.profileAuthenticate,ProfileController.getAllProfiles)
+.post(authenticator.authenticate,authenticator.userAuthenticate,authenticator.profileAuthenticate,ProfileController.createProfile)
+.patch(authenticator.authenticate,authenticator.userAuthenticate,authenticator.profileAuthenticate,ProfileController.updateProfile)
 
-// router.route('/profile/switch')
-// .post(authenticator.authenticate,ProfileController.switchprofile)
+router.route('/:id')
+.delete(authenticator.authenticate,authenticator.userAuthenticate,ProfileController.deleteProfile);
 
+router.route('/switch')
+.post(authenticator.authenticate,authenticator.userAuthenticate,ProfileController.switchProfile)
 
 export default router

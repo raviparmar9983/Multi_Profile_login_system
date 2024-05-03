@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import Jwt from "../jwt/JwtValidatorGenerator";
-import { JwtPayload, decode } from "jsonwebtoken";
+import { JwtPayload, TokenExpiredError, decode } from "jsonwebtoken";
 import jwt from 'jsonwebtoken'
-import User from '../models/userModel'
-import Profile from "../models/profileModel";
+import User, { IUser } from '../models/userModel'
+import Profile, { IProfile } from "../models/profileModel";
 
 const jwtService = new Jwt()
 
@@ -34,9 +34,41 @@ export default class Authenticator {
             }
             next()
         }
-        catch (err) {
-            next(err)
+        catch (err:any) {
+            res.status(500).json({
+                message:err.message
+            })
         }
     }
-    
+    public async userAuthenticate(req:Request,res:Response,next:NextFunction){
+        try{
+            const userId=(req as extendedRequest).userId;
+            const user:IUser|null =await User.findById(userId);
+            if(!user){
+                throw new Error('user not found please try again');
+            }
+            next();
+        }
+        catch(err:any){
+            res.status(500).json({
+                message:err.message
+            })
+        }
+    }
+    public async profileAuthenticate(req:Request,res:Response,next:NextFunction){
+        try{
+            const profileId=(req as extendedRequest).profileId;
+            const userId=(req as extendedRequest).userId;
+            const profile:IProfile |null=await Profile.findOne({_id:profileId,userId:userId});
+            if(!profile){
+                throw new Error('somthing went wrong');
+            }
+            next()
+        }
+        catch(err:any){
+            res.status(500).json({
+                message:err.message
+            })
+        }
+    }
 }
